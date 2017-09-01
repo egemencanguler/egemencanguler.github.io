@@ -1,1 +1,173 @@
-Hello World
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+    <HEAD>
+        <META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=utf-8">
+        <TITLE>Simple Demonstration of how WebGazer.js works</TITLE>
+
+        <style>
+        /* DivTable.com */
+           html, body {
+              width:  100%;
+              height: 100%;
+              margin: 0px;
+            }
+          img{
+              position:absolute;
+              top:-100%; bottom:-100%;
+              left:-100%; right:-100%;
+              margin:auto;
+          }
+
+          button {
+              background-color: #4CAF50;
+              border: none;
+              color: white;
+              padding: 15px 32px;
+              text-align: center;
+              text-decoration: none;
+              display: inline-block;
+              font-size: 16px;
+              margin: 4px 2px;
+              cursor: pointer;
+          }
+      </style>
+
+    </HEAD>
+
+    <canvas id="mainCanvas"></canvas>
+      <script src="model/convnet-min.js"></script>
+      <script src="model/hohey.js"></script>
+      <script src="webgazer.js"></script>
+      <script src="data_man.js"></script>
+      <script src="experiment.js"> </script>
+      <script src="calibration.js"></script>
+      <script type="text/javascript">
+        window.onload = function()
+        {
+            setupWebGazer();
+        }
+
+        function setupWebGazer()
+        {
+            console.log("Setup Webgazer");
+            window.localStorage.clear();
+            if( webgazer.isReady() )
+            {
+              showVideoFeed();
+              webgazer.reset();
+            }else
+            {
+              webgazer.addRegressionModule("hohey",hohey.model);
+              webgazer.setRegression("hohey")
+              //.addRegression("ridge") /* currently must set regression and tracker */
+              .setTracker('clmtrackr')
+              .begin()
+              .showPredictionPoints(true);
+            }
+
+            var startButton = document.createElement('button');
+            startButton.id = "startButton";
+            startButton.addEventListener("click", faceDetected);
+            startButton.innerHTML = "Başla";
+            startButton.style.position = "absolute";
+            startButton.style.top = window.innerHeight / 2;
+            startButton.style.left = window.innerWidth / 2;
+            document.body.appendChild(startButton);
+
+            function checkIfReady()
+            {
+              if (webgazer.isReady()) 
+              {
+                    showVideoFeed();
+                    webgazer.removeMouseEventListeners();
+              }else
+              {
+                    setTimeout(checkIfReady, 100);
+              }
+
+            }
+            setTimeout(checkIfReady,100);
+
+        }
+
+        function showVideoFeed()
+        {
+          var width = 320;
+          var height = 240;
+          var topDist = '0px';
+          var leftDist = '0px';
+
+          var video = document.getElementById('webgazerVideoFeed');
+          video.style.display = 'block';
+          video.style.position = 'absolute';
+          video.style.top = topDist;
+          video.style.left = leftDist;
+          video.width = width;
+          video.height = height;
+          video.style.margin = '0px';
+
+          webgazer.params.imgWidth = width;
+          webgazer.params.imgHeight = height;
+
+          var overlay = document.createElement('canvas');
+          overlay.id = 'overlay';
+          overlay.style.position = 'absolute';
+          overlay.width = width;
+          overlay.height = height;
+          overlay.style.top = topDist;
+          overlay.style.left = leftDist;
+          overlay.style.margin = '0px';
+
+          document.body.appendChild(overlay);
+
+          var cl = webgazer.getTracker().clm;
+
+          function drawLoop() 
+          {
+             var video = document.getElementById('webgazerVideoFeed');
+            if(video != null)
+            {
+              requestAnimFrame(drawLoop);
+              overlay.getContext('2d').clearRect(0,0,width,height);
+              if (cl.getCurrentPosition()) 
+              {
+                cl.draw(overlay);
+              }
+            }
+          }
+          drawLoop();
+
+        }
+
+        function stopVideoFeed()
+        {
+            // Don't destroy. Web gazer uses it to get features(probably)
+           document.getElementById('webgazerVideoFeed').style.display = "none";
+           document.body.removeChild(document.getElementById('overlay'));
+			     document.body.removeChild(document.getElementById('startButton'));
+
+        }
+
+        function faceDetected()
+        {
+        	stopVideoFeed();
+        	StartCalibration(onCalibrationEnd, onCalibrationTimeout);
+        }
+
+        function onCalibrationEnd()
+        {
+        	console.log("onCalibrationEnd");
+        	startExperiment();
+        }
+
+        function onCalibrationTimeout()
+        {
+          console.log("Calib Time Out !!");
+          setupWebGazer();
+        }
+
+      </script>
+
+
+  </body>
+</HTML>
