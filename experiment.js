@@ -27,16 +27,14 @@ function getWindowSize()
 
 function startExperiment()
 {
-  document.getElementById("expertimentInstructions").style.display = 'block';
-  document.getElementById("calibrationCheckInstructions").style.display = 'none';
-
+  instructions.show(instructions.experiment);
   setTimeout(function(){ experiment.start(); }, 3000);
   
 }
 
 experiment.start = function()
 {
-  document.getElementById("expertimentInstructions").style.display = 'none';
+  instructions.hide(instructions.experiment);
 
   webgazer.setGazeListener(onGazeData);
 
@@ -139,7 +137,7 @@ function onGazeData(data,elapsedTime)
 function endExperiment()
 {
 
-    
+    instructions.show(instructions.insExperimentEnd);
     console.log(experiment.data);
     experiment.currentRecording = null;
     imageLoaded = false;

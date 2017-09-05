@@ -36,7 +36,7 @@
     </HEAD>
 
     <canvas id="mainCanvas"></canvas>
-      <div id="instructions">
+      <div id="insStart">
         <ul>
         <li>Yüzünüzün önden iyi aydınlatıldığından emin olun</li>
         <li>Kafanızı deney sonuna kadar oynatmamaya özen gösterin</li>
@@ -45,16 +45,26 @@
 
       </div>
 
-      <div id="calibrationInstructions">
+      <div id="insStartCalibration">
         Kırmızı yuvarlaklara tıklayın
       </div>
 
-      <div id="expertimentInstructions">
+      <div id="insCheckCalibration">
+        Fareyi kullanmadan, Gözünüzle yuvarlakların ortasını hedef alın
+      </div>
+
+      <div id="insExperiment">
         Resimleri hatırlamaya çalışın
       </div>
 
-      <div id="calibrationCheckInstructions">
-        Gözünüzle yuvarlakların ortasını hedef alın
+      <div id="insExperimentEnd">
+        Indirilen dosyayı 
+        <a href="https://docs.google.com/forms/d/e/1FAIpQLSdWaa-8SRUdJtB_yYt8kJfOau5ozw65Vtd8vZwUHX589wazTg/viewform"> burdaki</a>
+        forma yükleyiniz
+      </div>
+
+      <div id="insTryAgain">
+        Kalibrasyon başarısız oldu lütfen sayfayı yenileyip tekrar deneyin.
       </div>
 
       <script src="model/convnet-min.js"></script>
@@ -67,6 +77,15 @@
         window.onload = function()
         {
             setupWebGazer();
+        }
+        var instructions = {}
+        instructions.hide = function(ins)
+        {
+            setTimeout(function(){ins.style.display = 'none';}, 100);
+        }
+        instructions.show = function(ins)
+        {
+            setTimeout(function(){ins.style.display = 'block';}, 100);
         }
 
         function setupWebGazer()
@@ -110,50 +129,46 @@
             startButton.style.left = window.innerWidth / 2 - 100;
             document.body.appendChild(startButton);
 
+            instructions.start = document.getElementById("insStart");
+            instructions.start.style.display = 'block';
+            instructions.start.style.position = 'absolute';
+            instructions.start.style.top = window.innerHeight / 2;
+            instructions.start.style.left = window.innerWidth / 2 - instructions.start.offsetWidth/2;
 
-            var instructions = document.getElementById("instructions");
-            instructions.style.display = 'block';
-            instructions.style.position = 'absolute';
-            if(!webgazer.isReady())
-            {
-              instructions.style.top = window.innerHeight / 2;
-              instructions.style.left = window.innerWidth / 2 - instructions.offsetWidth/2;
-            }
-            
-
-            var calibrationInstructions = document.getElementById("calibrationInstructions");
-            calibrationInstructions.style.position = 'absolute';
-            calibrationInstructions.style.display = 'none';
-
-            if(!webgazer.isReady())
-            {
-              
-              calibrationInstructions.style.top = window.innerHeight / 2;
-              calibrationInstructions.style.left = window.innerWidth / 2 - calibrationInstructions.offsetWidth/2;
-            }
-
-            var calibrationCheckInstructions = document.getElementById("calibrationCheckInstructions");
-            calibrationCheckInstructions.style.position = 'absolute';
-            calibrationCheckInstructions.style.display = 'none';
-
-            if(!webgazer.isReady())
-            {
-              calibrationCheckInstructions.style.top = window.innerHeight / 2;
-              calibrationCheckInstructions.style.left = window.innerWidth / 2 - calibrationCheckInstructions.offsetWidth/2;
-            }
+            instructions.startCalibration = document.getElementById("insStartCalibration");
+            instructions.startCalibration.style.position = 'absolute';
+            instructions.startCalibration.style.top = window.innerHeight / 2;
+            instructions.startCalibration.style.left = window.innerWidth / 2 - instructions.startCalibration.offsetWidth/2;
 
 
-            var expertimentInstructions = document.getElementById("expertimentInstructions");
-            expertimentInstructions.style.position = 'absolute';
-            expertimentInstructions.style.display = 'none';
+            instructions.checkCalibration = document.getElementById("insCheckCalibration");
+            instructions.checkCalibration.style.position = 'absolute';
+            instructions.checkCalibration.style.top = window.innerHeight / 2;
+            instructions.checkCalibration.style.left = window.innerWidth / 2 - instructions.checkCalibration.offsetWidth/2;
 
-            if(!webgazer.isReady())
-            {
-              expertimentInstructions.style.top = window.innerHeight / 2;
-              expertimentInstructions.style.left = window.innerWidth / 2 - expertimentInstructions.offsetWidth/2;
-            }
 
-            
+            instructions.experiment = document.getElementById("insExperiment");
+            instructions.experiment.style.position = 'absolute';
+            instructions.experiment.style.top = window.innerHeight / 2;
+            instructions.experiment.style.left = window.innerWidth / 2 - instructions.experiment.offsetWidth/2;
+
+
+            instructions.tryAgain = document.getElementById("insTryAgain");
+            instructions.tryAgain.style.position = 'absolute';
+            instructions.tryAgain.style.top = window.innerHeight / 2;
+            instructions.tryAgain.style.left = window.innerWidth / 2 - instructions.tryAgain.offsetWidth/2;
+
+
+            instructions.insExperimentEnd = document.getElementById("insExperimentEnd");
+            instructions.insExperimentEnd.style.position = 'absolute';
+            instructions.insExperimentEnd.style.top = window.innerHeight / 2;
+            instructions.insExperimentEnd.style.left = window.innerWidth / 2 - instructions.insExperimentEnd.offsetWidth/2;
+
+            instructions.hide(instructions.startCalibration);
+            instructions.hide(instructions.checkCalibration);
+            instructions.hide(instructions.experiment);
+            instructions.hide(instructions.tryAgain);
+            instructions.hide(instructions.insExperimentEnd);
 
 
             function checkIfReady()
@@ -232,13 +247,13 @@
             // Don't destroy. Web gazer uses it to get features(probably)
            document.getElementById('webgazerVideoFeed').style.display = "none";
            document.getElementById('overlay').style.display = "none";
-           document.getElementById("instructions").style.display = "none";
 			     document.body.removeChild(document.getElementById('startButton'));
 
         }
 
         function faceDetected()
         {
+          instructions.hide(instructions.start);
         	stopVideoFeed();
         	StartCalibration(onCalibrationEnd, onCalibrationTimeout);
         }
@@ -252,7 +267,8 @@
         function onCalibrationTimeout()
         {
           console.log("Calib Time Out !!");
-          setupWebGazer();
+          document.innerHTML = "Kalibrasyon başarısız oldu lütfen sayfayı yenileyip tekrar deneyin"
+          instructions.show(instructions.tryAgain);
         }
 
       </script>

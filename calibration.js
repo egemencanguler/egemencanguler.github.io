@@ -1,6 +1,6 @@
 
 var calibration = {}
-var CALIBRATION_TIMEOUT = 10000;
+var CALIBRATION_TIMEOUT = 5000;
 calibration.timeout = null;
 
 calibration.addData = function(feature,posX,posY)
@@ -9,22 +9,22 @@ calibration.addData = function(feature,posX,posY)
 }
 
 // Train Target parameters
-var TrTInnerRadius = 7;
-var TrTOutherRadius = 25;
+var TrTInnerRadius = 5;
+var TrTOutherRadius = 30;
 var TrTInnerColor = "red";
 var TrTInnerHoverColor = "green";
 var TrTOutherColor = "green";
 
 function StartCalibration(onCalibrationEnd, onCalibrationTimeout)
 {
-  document.getElementById("calibrationInstructions").style.display = 'block';
-
+  
+  instructions.show(instructions.startCalibration);
   setTimeout(function(){ calibration.start(onCalibrationEnd,onCalibrationTimeout); }, 3000);
 }
 
 calibration.start = function(onCalibrationEnd,onCalibrationTimeout)
 {
-  document.getElementById("calibrationInstructions").style.display = 'none';
+  instructions.hide(instructions.startCalibration);
 
   hohey.train = true;
   var canvas = document.getElementById('mainCanvas');
@@ -111,18 +111,22 @@ function NextTarget()
     strokeWidth: TrTOutherRadius - TrTInnerRadius,
     draw:function(context) 
     {
+
         context.beginPath();
-        context.arc(this.x, this.y, this.radius, 0, 2 * Math.PI, false);
-        context.fillStyle = TrTInnerColor;
+        context.arc(this.x, this.y, TrTOutherRadius, 0, 2 * Math.PI, false);
+        // outher color
+        context.fillStyle = "black";
+        context.fill();
+
+        context.beginPath();
+        context.arc(this.x, this.y, TrTInnerRadius, 0, 2 * Math.PI, false);
+        // inner color
+        context.fillStyle = "red";
         if(this.hover)
         {
-          context.fillStyle = TrTInnerHoverColor;
+          context.fillStyle = "green";
         }
         context.fill();
-        context.lineWidth = this.strokeWidth;
-        context.strokeStyle = '#003300';
-        context.stroke();
-
     },
     contains:function(posX,posY)
     {
@@ -196,7 +200,7 @@ function onCallibrationMouseClick(evt)
       if(!NextTarget())
       {
       	console.log("End Calibration!");
-        document.getElementById("calibrationCheckInstructions").style.display = 'block';
+        instructions.show(instructions.checkCalibration);
         calibration.target = null;
         calibration.endCalibration();
         setTimeout(function(){ checkCalibration(); }, 2000);
@@ -271,8 +275,8 @@ function NextCheckTarget()
 
 function checkCalibration()
 {
-  //hohey.train = false;
 	
+  instructions.hide(instructions.checkCalibration);
   var w = calibration.width;
   var h = calibration.height;
 
