@@ -2,7 +2,7 @@
 <HTML>
     <HEAD>
         <META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=utf-8">
-        <TITLE>Simple Demonstration of how WebGazer.js works</TITLE>
+        <TITLE>Hohey</TITLE>
 
         <style>
         /* DivTable.com */
@@ -10,6 +10,7 @@
               width:  100%;
               height: 100%;
               margin: 0px;
+              font-size: 30px;
             }
           img{
               position:absolute;
@@ -35,6 +36,27 @@
     </HEAD>
 
     <canvas id="mainCanvas"></canvas>
+      <div id="instructions">
+        <ul>
+        <li>Yüzünüzün önden iyi aydınlatıldığından emin olun</li>
+        <li>Kafanızı deney sonuna kadar oynatmamaya özen gösterin</li>
+        <li>Yeşil çizgiler yüz hatlarınızla eşleştiğinde başlaya tıklayın</li>
+        </ul> 
+
+      </div>
+
+      <div id="calibrationInstructions">
+        Kırmızı yuvarlaklara tıklayın
+      </div>
+
+      <div id="expertimentInstructions">
+        Resimleri hatırlamaya çalışın
+      </div>
+
+      <div id="calibrationCheckInstructions">
+        Gözünüzle yuvarlakların ortasını hedef alın
+      </div>
+
       <script src="model/convnet-min.js"></script>
       <script src="model/hohey.js"></script>
       <script src="webgazer.js"></script>
@@ -51,18 +73,32 @@
         {
             console.log("Setup Webgazer");
             window.localStorage.clear();
+            /* 
+              initialize regression model and reset all data and parameters
+            */
             if( webgazer.isReady() )
             {
               showVideoFeed();
-              webgazer.reset();
+              //webgazer.reset();
             }else
             {
-              webgazer.addRegressionModule("hohey",hohey.model);
-              webgazer.setRegression("hohey")
-              //.addRegression("ridge") /* currently must set regression and tracker */
-              .setTracker('clmtrackr')
-              .begin()
-              .showPredictionPoints(true);
+              var modelName = "ridge";
+              if(modelName == "hohey")
+              {
+                hohey.init();
+                webgazer.setRegression("hohey")
+                .setTracker('clmtrackr')
+                .begin()
+                .showPredictionPoints(false);
+              }else
+              {
+                webgazer.setRegression("ridge")
+                .setTracker('clmtrackr')
+                .begin()
+                .showPredictionPoints(false);
+              }
+              //webgazer.addRegressionModule("hohey",hohey.model);
+              
             }
 
             var startButton = document.createElement('button');
@@ -70,9 +106,55 @@
             startButton.addEventListener("click", faceDetected);
             startButton.innerHTML = "Başla";
             startButton.style.position = "absolute";
-            startButton.style.top = window.innerHeight / 2;
-            startButton.style.left = window.innerWidth / 2;
+            startButton.style.top = window.innerHeight - 200;
+            startButton.style.left = window.innerWidth / 2 - 100;
             document.body.appendChild(startButton);
+
+
+            var instructions = document.getElementById("instructions");
+            instructions.style.display = 'block';
+            instructions.style.position = 'absolute';
+            if(!webgazer.isReady())
+            {
+              instructions.style.top = window.innerHeight / 2;
+              instructions.style.left = window.innerWidth / 2 - instructions.offsetWidth/2;
+            }
+            
+
+            var calibrationInstructions = document.getElementById("calibrationInstructions");
+            calibrationInstructions.style.position = 'absolute';
+            calibrationInstructions.style.display = 'none';
+
+            if(!webgazer.isReady())
+            {
+              
+              calibrationInstructions.style.top = window.innerHeight / 2;
+              calibrationInstructions.style.left = window.innerWidth / 2 - calibrationInstructions.offsetWidth/2;
+            }
+
+            var calibrationCheckInstructions = document.getElementById("calibrationCheckInstructions");
+            calibrationCheckInstructions.style.position = 'absolute';
+            calibrationCheckInstructions.style.display = 'none';
+
+            if(!webgazer.isReady())
+            {
+              calibrationCheckInstructions.style.top = window.innerHeight / 2;
+              calibrationCheckInstructions.style.left = window.innerWidth / 2 - calibrationCheckInstructions.offsetWidth/2;
+            }
+
+
+            var expertimentInstructions = document.getElementById("expertimentInstructions");
+            expertimentInstructions.style.position = 'absolute';
+            expertimentInstructions.style.display = 'none';
+
+            if(!webgazer.isReady())
+            {
+              expertimentInstructions.style.top = window.innerHeight / 2;
+              expertimentInstructions.style.left = window.innerWidth / 2 - expertimentInstructions.offsetWidth/2;
+            }
+
+            
+
 
             function checkIfReady()
             {
@@ -94,8 +176,8 @@
         {
           var width = 320;
           var height = 240;
-          var topDist = '0px';
-          var leftDist = '0px';
+          var topDist = '0px'
+          var leftDist = (window.innerWidth / 2 - width / 2) + 'px';
 
           var video = document.getElementById('webgazerVideoFeed');
           video.style.display = 'block';
@@ -109,8 +191,14 @@
           webgazer.params.imgWidth = width;
           webgazer.params.imgHeight = height;
 
-          var overlay = document.createElement('canvas');
+
+          var overlay = document.getElementById('overlay');
+          if(overlay == null)
+          {
+            overlay = document.createElement('canvas');
+          }
           overlay.id = 'overlay';
+          overlay.style.display = 'block';
           overlay.style.position = 'absolute';
           overlay.width = width;
           overlay.height = height;
@@ -136,14 +224,15 @@
             }
           }
           drawLoop();
-
         }
 
         function stopVideoFeed()
         {
+          console.log("stopVideoFeed");
             // Don't destroy. Web gazer uses it to get features(probably)
            document.getElementById('webgazerVideoFeed').style.display = "none";
-           document.body.removeChild(document.getElementById('overlay'));
+           document.getElementById('overlay').style.display = "none";
+           document.getElementById("instructions").style.display = "none";
 			     document.body.removeChild(document.getElementById('startButton'));
 
         }

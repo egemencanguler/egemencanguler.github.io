@@ -10,7 +10,6 @@ data.save = function()
 
     //Save the file contents as a DataURI
     var dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(str);
-    console.log("Uri" + dataUri);
     document.getElementById("image").style.display = "none";
 
     var textToSave = str

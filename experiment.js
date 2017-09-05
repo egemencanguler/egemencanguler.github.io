@@ -9,7 +9,7 @@ experiment.windowSize = null;
 
 // show each image for spesified duration
 //var DURATION = 3000;
-var DURATION = 30;
+var DURATION = 3000;
 
 function getWindowSize()
 {
@@ -27,6 +27,17 @@ function getWindowSize()
 
 function startExperiment()
 {
+  document.getElementById("expertimentInstructions").style.display = 'block';
+  document.getElementById("calibrationCheckInstructions").style.display = 'none';
+
+  setTimeout(function(){ experiment.start(); }, 3000);
+  
+}
+
+experiment.start = function()
+{
+  document.getElementById("expertimentInstructions").style.display = 'none';
+
   webgazer.setGazeListener(onGazeData);
 
   experiment.started = true;
@@ -61,11 +72,12 @@ function startExperiment()
     }, DURATION);
 }
 
+
 function startRecording(imageNumber)
 {
   var imagePath = "./imgs/img" + String(imageNumber) + ".jpg";
   experiment.imageLoaded = false;
-  currentRecording =
+  experiment.currentRecording =
   {
     imageSize : null,
     imageScaledSize : null,
@@ -73,15 +85,16 @@ function startRecording(imageNumber)
     gazeData : [],
     addGazeData : function(x,y,elapsedTime)
     {
+        var windowSize = experiment.windowSize;
         var leftX = (windowSize.width - this.imageScaledSize[0])/2;
         var upY = (windowSize.height - this.imageScaledSize[1])/2;
 
         var normalizedX = (x - leftX)/this.imageScaledSize[0];
         var normalizedY = (y - upY)/this.imageScaledSize[1];
-        this.gazeData.push([normalizedX,normalizedY,x,y,elapsedTime,webgazer.getEyeFeatureVec()]);
+        experiment.currentRecording.gazeData.push([normalizedX,normalizedY,x,y,elapsedTime,webgazer.getEyeFeatureVec()]);
     }
   };
-  experiment.recordingQ.push(currentRecording);
+  experiment.recordingQ.push(experiment.currentRecording);
   changeImage(imagePath);
 
 }
@@ -91,7 +104,7 @@ function changeImage(path)
     img.src = path
     img.onload = function()
     {
-        currentRecording.imageSize = [img.naturalWidth,img.naturalHeight];
+        experiment.currentRecording.imageSize = [img.naturalWidth,img.naturalHeight];
         var windowSize = experiment.windowSize;
         var imgRatio = img.naturalWidth / img.naturalHeight;
         var windowRatio = windowSize.width / windowSize.height;
@@ -104,8 +117,8 @@ function changeImage(path)
           img.height = windowSize.height;
           img.width = img.height * (img.naturalWidth / img.naturalHeight);
         }
-        currentRecording.imageScaledSize = [img.width,img.height];
-        imageLoaded = true;
+        experiment.currentRecording.imageScaledSize = [img.width,img.height];
+        experiment.imageLoaded = true;
     }
 }
 
@@ -117,22 +130,20 @@ function onGazeData(data,elapsedTime)
     }
     var xprediction = data.x; //these x coordinates are relative to the viewport
     var yprediction = data.y; //these y coordinates are relative to the viewport
-    if(currentRecording != null)
+    if(experiment.currentRecording != null)
     {
-        currentRecording.addGazeData(data.x,data.y,elapsedTime);
+        experiment.currentRecording.addGazeData(data.x,data.y,elapsedTime);
     }
 }
 
 function endExperiment()
 {
-    console.log(experiment.data);
-    currentRecording = null;
-    imageLoaded = false;
 
-    data.save();
     
-    //Write it as the href for the link
-    //var link = document.getElementById('link').href = dataUri;
+    console.log(experiment.data);
+    experiment.currentRecording = null;
+    imageLoaded = false;
+    data.save();
 
 }
 
