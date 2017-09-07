@@ -29,7 +29,7 @@ function startExperiment()
 {
   instructions.show(instructions.experiment);
   setTimeout(function(){ experiment.start(); }, 3000);
-  
+
 }
 
 experiment.start = function()
@@ -68,6 +68,12 @@ experiment.start = function()
         startRecording(number ++);
       }
     }, DURATION);
+
+  if(DEBUG)
+  {
+    debugDraw();
+
+  }
 }
 
 
@@ -84,8 +90,8 @@ function startRecording(imageNumber)
     addGazeData : function(x,y,elapsedTime)
     {
         var windowSize = experiment.windowSize;
-        var leftX = (windowSize.width - this.imageScaledSize[0])/2;
-        var upY = (windowSize.height - this.imageScaledSize[1])/2;
+        var leftX = (windowSize.width - this.imageScaledSize[0]) / 2;
+        var upY = (windowSize.height - this.imageScaledSize[1]) / 2;
 
         var normalizedX = (x - leftX)/this.imageScaledSize[0];
         var normalizedY = (y - upY)/this.imageScaledSize[1];
@@ -145,5 +151,34 @@ function endExperiment()
 
 }
 
+
+function debugDraw()
+{
+  var canvas = document.getElementById('mainCanvas');
+  var context = canvas.getContext('2d');
+
+  var refreshIntervalId = setInterval(
+    function()
+    {
+        
+      context.clearRect(0, 0, canvas.width, canvas.height);
+      if(experiment.currentRecording != null)
+      {
+        for(var i = 0; i < experiment.currentRecording.gazeData.length; i ++)
+        {
+          var point = experiment.currentRecording.gazeData[i];
+          context.beginPath();
+          context.arc(point[2], point[3], 10, 0, 2 * Math.PI, false);
+          context.fillStyle = "green";
+          context.fill();
+
+        }
+      }
+      
+
+    }, 30);
+
+  
+}
 
 

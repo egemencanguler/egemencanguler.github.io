@@ -162,8 +162,8 @@ function calibrationDraw()
 function onCalibrationMouseMove(evt)
 {
   var target = calibration.target;
-  var mx = event.clientX;
-  var my = event.clientY;
+  var mx = evt.clientX;
+  var my = evt.clientY;
   if(target.outherContains(mx,my))
   {
     if(target.counter == undefined || target.counter == null)
@@ -175,8 +175,6 @@ function onCalibrationMouseMove(evt)
       var features = webgazer.addData(target.x,target.y,"click");
       calibration.addData(features,target.x,target.y);
     }
-
-    
     target.counter ++;
   }
   if(calibration.target.contains(mx,my))
@@ -191,8 +189,8 @@ function onCalibrationMouseMove(evt)
 function onCallibrationMouseClick(evt)
 {
   var target = calibration.target;
-  var mx = event.clientX;
-  var my = event.clientY;
+  var mx = evt.clientX;
+  var my = evt.clientY;
   if(target.contains(mx,my))
   {
       var features = webgazer.addData(target.x,target.y,"click");

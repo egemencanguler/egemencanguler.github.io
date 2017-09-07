@@ -17,6 +17,7 @@
               top:-100%; bottom:-100%;
               left:-100%; right:-100%;
               margin:auto;
+              z-index: -1;
           }
 
           button {
@@ -30,6 +31,10 @@
               font-size: 16px;
               margin: 4px 2px;
               cursor: pointer;
+          }
+          #mainCanvas {
+            z-index: 2;
+            
           }
       </style>
 
@@ -59,7 +64,7 @@
 
       <div id="insExperimentEnd">
         Indirilen dosyayı 
-        <a href="https://docs.google.com/forms/d/e/1FAIpQLSdWaa-8SRUdJtB_yYt8kJfOau5ozw65Vtd8vZwUHX589wazTg/viewform"> burdaki</a>
+        <a href="https://docs.google.com/forms/d/e/1FAIpQLSdWaa-8SRUdJtB_yYt8kJfOau5ozw65Vtd8vZwUHX589wazTg/viewform"> buradaki</a>
         forma yükleyiniz
       </div>
 
@@ -74,6 +79,7 @@
       <script src="experiment.js"> </script>
       <script src="calibration.js"></script>
       <script type="text/javascript">
+        var DEBUG = false;
         window.onload = function()
         {
             setupWebGazer();
@@ -105,18 +111,18 @@
               if(modelName == "hohey")
               {
                 hohey.init();
+                webgazer.addRegressionModule("hohey",hohey.model);
                 webgazer.setRegression("hohey")
                 .setTracker('clmtrackr')
                 .begin()
-                .showPredictionPoints(false);
+                .showPredictionPoints(DEBUG);
               }else
               {
                 webgazer.setRegression("ridge")
                 .setTracker('clmtrackr')
                 .begin()
-                .showPredictionPoints(false);
+                .showPredictionPoints(DEBUG);
               }
-              //webgazer.addRegressionModule("hohey",hohey.model);
               
             }
 
