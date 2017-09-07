@@ -34,6 +34,10 @@ function startExperiment()
 
 experiment.start = function()
 {
+  var canvas = document.getElementById('mainCanvas');
+  var context = canvas.getContext('2d');
+  context.clearRect(0, 0, canvas.width, canvas.height);
+
   instructions.hide(instructions.experiment);
 
   webgazer.setGazeListener(onGazeData);
@@ -161,7 +165,7 @@ function debugDraw()
     function()
     {
         
-      context.clearRect(0, 0, canvas.width, canvas.height);
+      
       if(experiment.currentRecording != null)
       {
         for(var i = 0; i < experiment.currentRecording.gazeData.length; i ++)
