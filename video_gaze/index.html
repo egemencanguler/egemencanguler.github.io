@@ -1,0 +1,269 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+    <HEAD>
+        <META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=utf-8">
+        <TITLE>Hohey</TITLE>
+
+        <style>
+        /* DivTable.com */
+           html, body {
+              width:  100%;
+              height: 100%;
+              margin: 0px;
+              font-size: 30px;
+            }
+          .videos{
+              position:absolute;
+              top:-100%; bottom:-100%;
+              left:-100%; right:-100%;
+              margin:auto;
+              z-index: -1;
+          }
+
+          button {
+              background-color: #4CAF50;
+              border: none;
+              color: white;
+              padding: 15px 32px;
+              text-align: center;
+              text-decoration: none;
+              display: inline-block;
+              font-size: 16px;
+              margin: 4px 2px;
+              cursor: pointer;
+          }
+          #mainCanvas {
+            z-index: 2;
+            
+          }
+      </style>
+
+    </HEAD>
+
+    <canvas id="mainCanvas"></canvas>
+      <div id="insStart">
+        <ul>
+        <li>Yüzünüzün önden iyi aydınlatıldığından emin olun</li>
+        <li>Kafanızı deney sonuna kadar oynatmamaya özen gösterin</li>
+        <li>Yeşil çizgiler yüz hatlarınızla eşleştiğinde başlaya tıklayın</li>
+        </ul> 
+
+      </div>
+
+      <div id="insStartCalibration">
+        Kırmızı yuvarlaklara tıklayın
+      </div>
+
+      <div id="insCheckCalibration">
+        Fareyi kullanmadan, Gözünüzle yuvarlakların ortasını hedef alın
+      </div>
+
+      <div id="insExperiment">
+        Videoları hatırlamaya çalışın
+      </div>
+
+      <div id="insExperimentEnd">
+        Indirilen dosyayı 
+        <a href="https://docs.google.com/forms/d/e/1FAIpQLSdWaa-8SRUdJtB_yYt8kJfOau5ozw65Vtd8vZwUHX589wazTg/viewform"> buradaki</a>
+        forma yükleyiniz
+      </div>
+
+      <div id="insTryAgain">
+        Kalibrasyon başarısız oldu lütfen sayfayı yenileyip tekrar deneyin.
+      </div>
+
+      <script src="webgazer.js"></script>
+      <script src="data_man.js"></script>
+      <script src="experiment.js"> </script>
+      <script src="calibration.js"></script>
+      <script type="text/javascript">
+        var DEBUG = true;
+        var instructions = {}
+
+        window.onload = function()
+        {
+            setupWebGazer();
+        }
+        instructions.hide = function(ins)
+        {
+            setTimeout(function(){ins.style.display = 'none';}, 100);
+        }
+        instructions.show = function(ins)
+        {
+            setTimeout(function(){ins.style.display = 'block';}, 100);
+        }
+
+        function setupWebGazer()
+        {
+            console.log("Setup Webgazer");
+            window.localStorage.clear();
+            /* 
+              initialize regression model and reset all data and parameters
+            */
+            if( webgazer.isReady() )
+            {
+              showVideoFeed();
+              //webgazer.reset();
+            }else
+            {
+              webgazer.setRegression("ridge")
+                .setTracker('clmtrackr')
+                .begin()
+                .showPredictionPoints(DEBUG);
+            }
+
+            var startButton = document.createElement('button');
+            startButton.id = "startButton";
+            startButton.addEventListener("click", faceDetected);
+            startButton.innerHTML = "Başla";
+            startButton.style.position = "absolute";
+            startButton.style.top = window.innerHeight - 200;
+            startButton.style.left = window.innerWidth / 2 - 100;
+            document.body.appendChild(startButton);
+
+            instructions.start = document.getElementById("insStart");
+            instructions.start.style.display = 'block';
+            instructions.start.style.position = 'absolute';
+            instructions.start.style.top = window.innerHeight / 2;
+            instructions.start.style.left = window.innerWidth / 2 - instructions.start.offsetWidth/2;
+
+            instructions.startCalibration = document.getElementById("insStartCalibration");
+            instructions.startCalibration.style.position = 'absolute';
+            instructions.startCalibration.style.top = window.innerHeight / 2;
+            instructions.startCalibration.style.left = window.innerWidth / 2 - instructions.startCalibration.offsetWidth/2;
+
+
+            instructions.checkCalibration = document.getElementById("insCheckCalibration");
+            instructions.checkCalibration.style.position = 'absolute';
+            instructions.checkCalibration.style.top = window.innerHeight / 2;
+            instructions.checkCalibration.style.left = window.innerWidth / 2 - instructions.checkCalibration.offsetWidth/2;
+
+
+            instructions.experiment = document.getElementById("insExperiment");
+            instructions.experiment.style.position = 'absolute';
+            instructions.experiment.style.top = window.innerHeight / 2;
+            instructions.experiment.style.left = window.innerWidth / 2 - instructions.experiment.offsetWidth/2;
+
+
+            instructions.tryAgain = document.getElementById("insTryAgain");
+            instructions.tryAgain.style.position = 'absolute';
+            instructions.tryAgain.style.top = window.innerHeight / 2;
+            instructions.tryAgain.style.left = window.innerWidth / 2 - instructions.tryAgain.offsetWidth/2;
+
+
+            instructions.insExperimentEnd = document.getElementById("insExperimentEnd");
+            instructions.insExperimentEnd.style.position = 'absolute';
+            instructions.insExperimentEnd.style.top = window.innerHeight / 2;
+            instructions.insExperimentEnd.style.left = window.innerWidth / 2 - instructions.insExperimentEnd.offsetWidth/2;
+
+            instructions.hide(instructions.startCalibration);
+            instructions.hide(instructions.checkCalibration);
+            instructions.hide(instructions.experiment);
+            instructions.hide(instructions.tryAgain);
+            instructions.hide(instructions.insExperimentEnd);
+
+            function checkIfReady()
+            {
+              if (webgazer.isReady()) 
+              {
+                    showVideoFeed();
+                    webgazer.removeMouseEventListeners();
+              }else
+              {
+                    setTimeout(checkIfReady, 100);
+              }
+
+            }
+            setTimeout(checkIfReady,100);
+
+        }
+
+        function showVideoFeed()
+        {
+          var width = 320;
+          var height = 240;
+          var topDist = '0px'
+          var leftDist = (window.innerWidth / 2 - width / 2) + 'px';
+
+          var video = document.getElementById('webgazerVideoFeed');
+          video.style.display = 'block';
+          video.style.position = 'absolute';
+          video.style.top = topDist;
+          video.style.left = leftDist;
+          video.width = width;
+          video.height = height;
+          video.style.margin = '0px';
+
+          webgazer.params.imgWidth = width;
+          webgazer.params.imgHeight = height;
+
+
+          var overlay = document.getElementById('overlay');
+          if(overlay == null)
+          {
+            overlay = document.createElement('canvas');
+          }
+          overlay.id = 'overlay';
+          overlay.style.display = 'block';
+          overlay.style.position = 'absolute';
+          overlay.width = width;
+          overlay.height = height;
+          overlay.style.top = topDist;
+          overlay.style.left = leftDist;
+          overlay.style.margin = '0px';
+
+          document.body.appendChild(overlay);
+
+          var cl = webgazer.getTracker().clm;
+
+          function drawLoop() 
+          {
+             var video = document.getElementById('webgazerVideoFeed');
+            if(video != null)
+            {
+              requestAnimFrame(drawLoop);
+              overlay.getContext('2d').clearRect(0,0,width,height);
+              if (cl.getCurrentPosition()) 
+              {
+                cl.draw(overlay);
+              }
+            }
+          }
+          drawLoop();
+        }
+
+        function stopVideoFeed()
+        {
+          console.log("stopVideoFeed");
+            // Don't destroy. Web gazer uses it to get features(probably)
+           document.getElementById('webgazerVideoFeed').style.display = "none";
+           document.getElementById('overlay').style.display = "none";
+			     document.body.removeChild(document.getElementById('startButton'));
+
+        }
+
+        function faceDetected()
+        {
+          instructions.hide(instructions.start);
+        	stopVideoFeed();
+        	StartCalibration(onCalibrationEnd, onCalibrationTimeout);
+        }
+
+        function onCalibrationEnd()
+        {
+        	console.log("onCalibrationEnd");
+        	startExperiment();
+        }
+
+        function onCalibrationTimeout()
+        {
+          console.log("Calib Time Out !!");
+          document.innerHTML = "Kalibrasyon başarısız oldu lütfen sayfayı yenileyip tekrar deneyin"
+          instructions.show(instructions.tryAgain);
+        }
+
+      </script>
+
+
+  </body>
+</HTML>
