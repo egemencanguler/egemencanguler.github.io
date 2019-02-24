@@ -804,14 +804,24 @@ function onReadyCallback()
     //Use dapi functions
     dapi.addEventListener("viewableChange", start);
     dapi.addEventListener("adResized", start);
+    dapi.addEventListener("audioVolumeChanged", onAudioVolumeChanged);
+}
+
+function onAudioVolumeChanged()
+{
+
 }
 
 function startGame() 
 {
     //start your game
     var screenSize = dapi.getScreenSize();
+    var audioVolume = dapi.getAudioVolume();
+
     start();
 }
+
+
 
 // function viewableChangeCallback(e)
 // {
