@@ -781,7 +781,13 @@ var game= null;
 
 window.onload = function()
 {
-    (dapi.isReady()) ? onReadyCallback() : dapi.addEventListener("ready", onReadyCallback);
+    if(dapi.isReady())
+    {
+        onReadyCallback();
+    }else
+    {
+        dapi.addEventListener("ready", onReadyCallback);
+    }
     //Here you can put other code that not related to dapi logic
 };
 
@@ -791,10 +797,13 @@ function onReadyCallback()
     //dapi.removeEventListener("ready", onReadyCallback);
 
     //If the ad is visible start the game
-    dapi.isViewable() ? startGame();
+    if(dapi.isViewable())
+    {
+        startGame();
+    } 
     //Use dapi functions
-    dapi.addEventListener("viewableChange", resize);
-    dapi.addEventListener("adResized", resize);
+    dapi.addEventListener("viewableChange", start);
+    dapi.addEventListener("adResized", start);
 }
 
 function startGame() 
@@ -811,23 +820,21 @@ function startGame()
 
 
 
-
-
 function start()
 {
     document.body.style.backgroundColor = gameOptions.backgroundColor;
 
-    var gameConfig = 
-    {
-        type: Phaser.CANVAS,
-        width: gameOptions.gameWidth,
-        height: gameOptions.gameHeight,
-        scene : [Start,Level1,Level2,Level3,Level4,Level5,End],
-        title : "Ignis",
-        backgroundColor: gameOptions.backgroundColor
-    };
     if(game == null)
     {
+        var gameConfig = 
+        {
+            type: Phaser.CANVAS,
+            width: gameOptions.gameWidth,
+            height: gameOptions.gameHeight,
+            scene : [Start,Level1,Level2,Level3,Level4,Level5,End],
+            title : "Ignis",
+            backgroundColor: gameOptions.backgroundColor
+        };
         console.log("New Game");
         game = new Phaser.Game(gameConfig);
     }
