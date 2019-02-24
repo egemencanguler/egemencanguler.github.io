@@ -804,10 +804,10 @@ function onReadyCallback()
     //Use dapi functions
     dapi.addEventListener("viewableChange", start);
     dapi.addEventListener("adResized", start);
-    dapi.addEventListener("audioVolumeChanged", onAudioVolumeChanged);
+    dapi.addEventListener("audioVolumeChange", onAudioVolumeChange);
 }
 
-function onAudioVolumeChanged()
+function onAudioVolumeChange()
 {
 
 }
