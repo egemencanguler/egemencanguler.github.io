@@ -837,10 +837,8 @@ function start()
     if(typeof(mraid) !== 'undefined')
     {
         mraid.addEventListener('viewableChange', resize);
-    }else
-    {
-        window.addEventListener("resize", resize, false);
     }
+    window.addEventListener("resize", resize, false);
 }
 
 
