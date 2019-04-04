@@ -782,9 +782,10 @@ var gameOptions =
 
 
 var game = null;
-
+var dapiMode = false;
 var mRaidMode = typeof(mraid) !== 'undefined';
-var dapiMode = typeof(dapi) !== 'undefined';
+
+console.log("mRaidMode: " + mRaidMode);
 
 if( mRaidMode && mraid.getState() === 'loading')
 {
@@ -793,6 +794,9 @@ if( mRaidMode && mraid.getState() === 'loading')
 
 window.onload = function()
 {
+    dapiMode = typeof(dapi) !== 'undefined';
+    console.log("dapi mode: " + dapiMode);
+
     if(dapiMode)
     {
         if(dapi.isReady())
