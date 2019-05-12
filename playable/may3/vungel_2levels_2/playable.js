@@ -804,10 +804,38 @@ console.log("facebookMode: " + facebookMode);
 console.log("vungleMode: " + vungleMode);
 
 
-
 if(tapjoyMode)
 {
     (window.TJ_API && window.TJ_API.setPlayableBuild(tapjoy.version));
+
+    if(window.TJ_API)
+    {
+        window.TJ_API.setPlayableAPI({skipAd: function() 
+        {
+            game.scene.remove("Level1");
+            game.scene.remove("Level2");
+            game.scene.remove("Level3");
+            game.scene.remove("Level4");
+            game.scene.remove("Level5");
+            game.scene.start("End");
+        } });
+    }else
+    {
+        window.onkeyup = function(keyEvent) 
+        {
+            if("Escape" === keyEvent.code)
+            {
+                game.scene.remove("Level1");
+                game.scene.remove("Level2");
+                game.scene.remove("Level3");
+                game.scene.remove("Level4");
+                game.scene.remove("Level5");
+                game.scene.start("End");
+            }
+        };
+
+    }
+    
 }
 
 
@@ -1086,6 +1114,7 @@ class End extends  Phaser.Scene
         if(tapjoyMode)
         {
             window.TJ_API && window.TJ_API.gameplayFinished();
+            window.TJ_API && window.TJ_API.objectiveComplete();
         }
 
         if(vungleMode)
