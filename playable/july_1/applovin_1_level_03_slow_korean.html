@@ -953,6 +953,7 @@ function gameClose()
 
 
 /* AUDIO */
+var muted = false;
 var explosionAudios = [];
 var explosionAudioIdx = 0;
 var nExplosionAudioNumber = 5;
@@ -966,6 +967,7 @@ burningLoopAudio.loop = true;
 
 function playExplosionSound()
 {
+    if(muted){return;}
     explosionAudios[explosionAudioIdx].currentTime = 0;
     explosionAudios[explosionAudioIdx].play();
     explosionAudioIdx = (explosionAudioIdx + 1) % nExplosionAudioNumber;
@@ -982,6 +984,7 @@ function stopExplosionSounds()
 
 function startBurningSoundLoop()
 {
+    if(muted){return;}
     burningLoopAudio.play();
 }
 
@@ -1041,9 +1044,11 @@ function viableChanged()
 {
     if(dapi.isViewable())
     {
+        muted = false;
         start();
     }else
     {
+        muted = true;
         stopBurningSoundLoop();
         stopExplosionSounds();
     }
