@@ -944,6 +944,15 @@ function playExplosionSound()
     explosionAudioIdx = (explosionAudioIdx + 1) % nExplosionAudioNumber;
 }
 
+function stopExplosionSounds()
+{
+    for(var i = 0; i < nExplosionAudioNumber; i ++)
+    {
+        explosionAudios[i].pause();
+    }
+
+}
+
 function startBurningSoundLoop()
 {
     burningLoopAudio.play();
@@ -991,7 +1000,7 @@ function dapiOnReadyCallback()
         start();
     } 
     //Use dapi functions
-    dapi.addEventListener("viewableChange", start);
+    dapi.addEventListener("viewableChange", viableChanged);
     dapi.addEventListener("adResized", start);
     dapi.addEventListener("audioVolumeChange", dapiOnAudioVolumeChange);
 }
@@ -999,6 +1008,18 @@ function dapiOnReadyCallback()
 function dapiOnAudioVolumeChange()
 {
 
+}
+
+function viableChanged()
+{
+    if(dapi.isViewable())
+    {
+        start();
+    }else
+    {
+        stopBurningSoundLoop();
+        stopExplosionSounds();
+    }
 }
 
 
@@ -1032,7 +1053,10 @@ function start()
         mraid.addEventListener('viewableChange', resize);
     }else if(dapiMode)
     {
-        var audioVolume = dapi.getAudioVolume();
+        if(dapi.isReady())
+        {
+            var audioVolume = dapi.getAudioVolume();
+        }
     }
 
     if(game == null)
