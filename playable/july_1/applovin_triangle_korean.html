@@ -487,7 +487,7 @@ class LevelScene extends Phaser.Scene
 
 	create()
 	{
-		burningLoopAudio.pause();
+		stopBurningSoundLoop();
 		explosions = [];
 		/* Setup Particles */
 		var particles = this.add.particles('Particle');
@@ -953,19 +953,25 @@ function gameClose()
 
 
 /* AUDIO */
-if(dapiMode)
+var explosionAudios = [];
+var explosionAudioIdx = 0;
+var nExplosionAudioNumber = 5;
+
+if(!dapiMode)
 {
-    var explosionAudios = [];
-    var explosionAudioIdx = 0;
-    var nExplosionAudioNumber = 5;
     for(var i = 0; i < nExplosionAudioNumber; i ++)
     {
         explosionAudios.push(new Audio(ExplosionData));
     }
+}
 
-    var burningLoopAudio = new Audio(BurningLoopData);
+var burningLoopAudio;
+if(!dapiMode)
+{
+    burningLoopAudio = new Audio(BurningLoopData);
     burningLoopAudio.loop = true;
 }
+
 
 function playExplosionSound()
 {
