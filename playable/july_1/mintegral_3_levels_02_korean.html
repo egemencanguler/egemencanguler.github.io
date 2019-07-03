@@ -926,21 +926,23 @@ function gameClose()
 
 
 /* AUDIO */
-var muted = false;
-var explosionAudios = [];
-var explosionAudioIdx = 0;
-var nExplosionAudioNumber = 5;
-for(var i = 0; i < nExplosionAudioNumber; i ++)
+if(dapiMode)
 {
-    explosionAudios.push(new Audio(ExplosionData));
-}
+    var explosionAudios = [];
+    var explosionAudioIdx = 0;
+    var nExplosionAudioNumber = 5;
+    for(var i = 0; i < nExplosionAudioNumber; i ++)
+    {
+        explosionAudios.push(new Audio(ExplosionData));
+    }
 
-var burningLoopAudio = new Audio(BurningLoopData);
-burningLoopAudio.loop = true;
+    var burningLoopAudio = new Audio(BurningLoopData);
+    burningLoopAudio.loop = true;
+}
 
 function playExplosionSound()
 {
-    if(muted){return;}
+    if(dapiMode){return;}
     explosionAudios[explosionAudioIdx].currentTime = 0;
     explosionAudios[explosionAudioIdx].play();
     explosionAudioIdx = (explosionAudioIdx + 1) % nExplosionAudioNumber;
@@ -948,6 +950,7 @@ function playExplosionSound()
 
 function stopExplosionSounds()
 {
+    if(dapiMode){return;}
     for(var i = 0; i < nExplosionAudioNumber; i ++)
     {
         explosionAudios[i].pause();
@@ -957,12 +960,13 @@ function stopExplosionSounds()
 
 function startBurningSoundLoop()
 {
-    if(muted){return;}
+    if(dapiMode){return;}
     burningLoopAudio.play();
 }
 
 function stopBurningSoundLoop()
 {
+    if(dapiMode){return;}
     burningLoopAudio.pause();
 }
 
@@ -1017,11 +1021,9 @@ function viableChanged()
 {
     if(dapi.isViewable())
     {
-        muted = false;
         start();
     }else
     {
-        muted = true;
         stopBurningSoundLoop();
         stopExplosionSounds();
     }
