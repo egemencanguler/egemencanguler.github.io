@@ -697,6 +697,8 @@ class LevelScene extends Phaser.Scene
 		this.checkPointEnd = null;
 		this.level_complete_popup = null;
 		this.draw_the_line = null;
+		this.play_now = null;
+
 		this.saws = [];
 		this.axe_blades = [];
 		this.obstacles = [];
@@ -1196,6 +1198,7 @@ class LevelScene extends Phaser.Scene
 	{
 		this.play_now = this.add.image(540,950 + 200,"PlayNow");
 		this.play_now.depth = 100;
+		this.play_now.setInteractive();
         this.play_now.on('pointerdown', function (pointer) 
         {
            goToStore();
@@ -1342,12 +1345,10 @@ class Level2 extends LevelScene
 
 		var scene = this;
 
-		this.input.on('pointerdown', function(pointer)
+	 	setTimeout(function() 
 		{
-		    goToStore();
-	 	});
-
-	 	this.show_play_now();
+	 		scene.show_play_now();
+		},1000)
 
 	}
 }
