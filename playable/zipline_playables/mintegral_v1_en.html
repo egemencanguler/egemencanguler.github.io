@@ -128,7 +128,7 @@ function remove_at(array,idx)
 
 function peek(array)
 {
-	array[array.length - 1];
+	return array[array.length - 1];
 }
 
 
@@ -551,6 +551,7 @@ class RopeMover
 			var lastNode = this.ropeData.LastNode();
 			var relPos = this.ropeNewEnd.sub(lastNode.pos);
 
+
 			if (relPos.dot(peek(lastNode.normals)) > 0.001)
             {
 				var removedNodePos = this.ropeData.LastNodePos();
@@ -583,6 +584,7 @@ class RopeMover
 			movement.normalize()
 			var normal = get_normal(lastNodePos, contactNode.pos, this.ropeNewEnd.add(movement));
 			
+			var fn = fix_normal(normal,contactNode.surfaceNormal);
 			contactNode.normals.push(fix_normal(normal,contactNode.surfaceNormal));
 
 			contactNode.processed = true;
