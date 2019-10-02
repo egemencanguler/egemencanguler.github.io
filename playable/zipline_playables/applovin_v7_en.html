@@ -1109,7 +1109,7 @@ class LevelScene extends Phaser.Scene
 
 		this.particles = this.add.particles('blood_particle');
 		this.particles.depth = 1000;
-
+		this.game_over = false;
 
 		this.setup_level();
 	}
@@ -1488,7 +1488,7 @@ class LevelScene extends Phaser.Scene
 				if(!this.move_rope)
 				{
 					var distance = pos.sub(this.rope_mover.ropeOldEnd).magnitude();
-					if(distance < 100)
+					if(distance < 1000)
 					{
 						this.move_rope = true;
 					}
@@ -1788,6 +1788,18 @@ class LevelScene extends Phaser.Scene
 		this.path_tutorial_hand = finger;
 		this.path_tutorial_follower = follower;
 		this.path_tutorial_path = path;
+
+
+		var startPos = new Vector2(points[0],points[1]);
+		var nextPos = new Vector2(points[2],points[3]);
+		var dir = nextPos.sub(startPos);
+		dir.normalize();
+		dir = dir.mul(100);
+
+		var pos = startPos.add(dir);
+		this.moveRope(pos);
+
+
 
 	}
 
@@ -2347,7 +2359,6 @@ class Level1 extends LevelScene
 
 	setup_level()
 	{
-
 		this.show_tap_to_rescue();
 
 		// Level Layout
@@ -2407,6 +2418,7 @@ class Level1 extends LevelScene
 				
 		});
 
+
 	}
 }
 
@@ -2415,6 +2427,80 @@ class Level2 extends LevelScene
     constructor()
     {
 		super("Level2","End");
+    }
+
+    setup_level()
+	{
+		
+
+
+		this.show_tap_to_rescue();
+	
+		// Level Layout
+
+		this.add_checkpoints(285,300, 800,1527, 1);
+
+		this.add_circle(this.node_list.nodes.length,new Vector2(453,618),78);
+		this.add_circle(this.node_list.nodes.length,new Vector2(639,1305),65);
+
+		this.add_rect(this.node_list.nodes.length,new Vector2(837,675),new Vector2(70,70));
+		this.add_rect(this.node_list.nodes.length,new Vector2(309,927),new Vector2(95,95));
+
+		this.add_saw(300,618).setScale(0.5,0.5);
+		this.add_saw(300,1300).setScale(0.5,0.5);
+		this.add_periodic_spike(837,735).setScale(2,2);
+
+		/* POLYGONS AND NODES [polygon_points,points,normals] */
+
+		this.add_dudes2(13,2);
+
+		var tpath = [485,300,530.5796053227989,609.9126742393573,530.5666266277627,626.2108728883874,527.1670379195047,642.1505794184479,520.5292674804028,657.03585574264,510.9431247402577,670.216800891427,498.82714700568357,681.1179261170665,484.71032584560345,689.2632811114227,230.42926555816123,835.244903911421,226.4128600248992,837.69583353628,222.82907017994572,840.7446070242318,219.76605155698752,844.3162293935537,217.2991495454256,848.3228444111191,215.48904601355872,852.6658957160836,214.38026663107834,857.2385511497037,214.00008560836847,991.9283306566316,214.35785479428313,996.6198731154866,215.44477363552943,1001.197774039073,217.23410565629,1005.5494243413273,219.68183613302992,1009.5677803418414,222.7277547867335,1013.1539968702527,226.29693686006274,1016.2198587003185,230.30158614729356,1018.6899505042625,665.5198194173091,1245.6560940106458,677.2730115279066,1252.4626172274948,687.3551787440147,1261.562957183593,800.3802281368821,1379.7718631178707];
+		for(var i = 0; i < tpath.length; i += 2)
+		{
+			this.dude_path.push(new Vector2(tpath[i], tpath[i + 1]));
+		}
+		this.draw_dude_path = true;
+		this.rope_active = false;
+
+		var scene = this;
+
+		this.show_tap_tutorial_hand(800,400);
+
+
+		this.input.on('pointerdown', function(pointer)
+		{
+		    var touchX = pointer.x;
+		    var touchY = pointer.y;
+		    scene.send_dudes = true;
+		    scene.hide_tap_tutorial_hand();
+	 	});
+
+
+		this.update_calls.push(function()
+		{
+			if(!scene.level_complete && scene.send_dudes_completed)
+			{
+				scene.level_complete = true;
+				scene.show_level_complete_no_continue();
+
+				setTimeout(function() 
+				{
+            		scene.scene.start("Level3");
+				},1000)
+
+			}
+				
+		});
+
+	}
+}
+
+
+class Level3 extends LevelScene
+{
+    constructor()
+    {
+		super("Level3","End");
     }
 
     setup_level()
@@ -2466,21 +2552,6 @@ class Level2 extends LevelScene
 				goToStore();
 			}
 		});
-
-	}
-}
-
-
-class Level3 extends LevelScene
-{
-    constructor()
-    {
-		super("Level3","End");
-    }
-
-    setup_level()
-	{
-
 
 	}
 }

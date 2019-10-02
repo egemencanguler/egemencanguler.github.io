@@ -1109,7 +1109,7 @@ class LevelScene extends Phaser.Scene
 
 		this.particles = this.add.particles('blood_particle');
 		this.particles.depth = 1000;
-
+		this.game_over = false;
 
 		this.setup_level();
 	}
@@ -1488,7 +1488,7 @@ class LevelScene extends Phaser.Scene
 				if(!this.move_rope)
 				{
 					var distance = pos.sub(this.rope_mover.ropeOldEnd).magnitude();
-					if(distance < 100)
+					if(distance < 1000)
 					{
 						this.move_rope = true;
 					}
@@ -1788,6 +1788,18 @@ class LevelScene extends Phaser.Scene
 		this.path_tutorial_hand = finger;
 		this.path_tutorial_follower = follower;
 		this.path_tutorial_path = path;
+
+
+		var startPos = new Vector2(points[0],points[1]);
+		var nextPos = new Vector2(points[2],points[3]);
+		var dir = nextPos.sub(startPos);
+		dir.normalize();
+		dir = dir.mul(100);
+
+		var pos = startPos.add(dir);
+		this.moveRope(pos);
+
+
 
 	}
 

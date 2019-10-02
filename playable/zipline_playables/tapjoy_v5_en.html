@@ -1113,7 +1113,7 @@ class LevelScene extends Phaser.Scene
 
 		this.particles = this.add.particles('blood_particle');
 		this.particles.depth = 1000;
-
+		this.game_over = false;
 
 		this.setup_level();
 	}
@@ -1492,7 +1492,7 @@ class LevelScene extends Phaser.Scene
 				if(!this.move_rope)
 				{
 					var distance = pos.sub(this.rope_mover.ropeOldEnd).magnitude();
-					if(distance < 100)
+					if(distance < 1000)
 					{
 						this.move_rope = true;
 					}
@@ -1792,6 +1792,18 @@ class LevelScene extends Phaser.Scene
 		this.path_tutorial_hand = finger;
 		this.path_tutorial_follower = follower;
 		this.path_tutorial_path = path;
+
+
+		var startPos = new Vector2(points[0],points[1]);
+		var nextPos = new Vector2(points[2],points[3]);
+		var dir = nextPos.sub(startPos);
+		dir.normalize();
+		dir = dir.mul(100);
+
+		var pos = startPos.add(dir);
+		this.moveRope(pos);
+
+
 
 	}
 
@@ -2414,8 +2426,6 @@ class Level2 extends LevelScene
 
     setup_level()
 	{
-		this.show_play_button();
-
 
 		this.add_checkpoints(285,300, 800,1527, 1);
 
@@ -2443,11 +2453,29 @@ class Level2 extends LevelScene
 
 		this.update_calls.push(function()
 		{
-			var pointer = scene.input.activePointer;
-			if (pointer.isDown) 
+			if(!scene.game_over && scene.killed_dudes.length == 13)
 			{
-				goToStore();
+				scene.game_over = true;
+				setTimeout(function()
+				{
+					scene.show_game_over(function()
+					{
+            			scene.scene.start("Level2");
+					});
+
+				},2000);
 			}
+
+			if(!scene.level_complete && scene.send_dudes_completed)
+			{
+				scene.level_complete = true;
+				scene.show_level_complete_no_continue();
+				setTimeout(function() 
+				{
+            		scene.scene.start("Level3");
+				},1000)
+			}
+				
 		});
 
 	}
@@ -2463,7 +2491,41 @@ class Level3 extends LevelScene
 
     setup_level()
 	{
-		
+		this.show_play_button();
+
+
+		this.add_checkpoints(285,300, 800,1527, 1);
+
+		this.add_circle(this.node_list.nodes.length,new Vector2(900,800),65);
+
+		this.add_rect(this.node_list.nodes.length,new Vector2(350,675),new Vector2(70,70));
+
+		this.add_saw(800,618).setScale(0.5,0.5);
+		this.add_saw(800,1200);
+		this.add_axe_blade(350,735).setScale(2,2);
+
+		this.add_coin(963,793);
+
+
+
+		this.add_tutorial_arrow(800,1374);
+
+		/* POLYGONS AND NODES [polygon_points,points,normals] */
+
+		this.add_dudes2(13,2);
+		this.add_rope();
+
+
+		var scene = this;
+
+		this.update_calls.push(function()
+		{
+			var pointer = scene.input.activePointer;
+			if (pointer.isDown) 
+			{
+				goToStore();
+			}
+		});
 
 	}
 }

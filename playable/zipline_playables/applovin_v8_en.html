@@ -1109,7 +1109,7 @@ class LevelScene extends Phaser.Scene
 
 		this.particles = this.add.particles('blood_particle');
 		this.particles.depth = 1000;
-
+		this.game_over = false;
 
 		this.setup_level();
 	}
@@ -1488,7 +1488,7 @@ class LevelScene extends Phaser.Scene
 				if(!this.move_rope)
 				{
 					var distance = pos.sub(this.rope_mover.ropeOldEnd).magnitude();
-					if(distance < 100)
+					if(distance < 1000)
 					{
 						this.move_rope = true;
 					}
@@ -1788,6 +1788,18 @@ class LevelScene extends Phaser.Scene
 		this.path_tutorial_hand = finger;
 		this.path_tutorial_follower = follower;
 		this.path_tutorial_path = path;
+
+
+		var startPos = new Vector2(points[0],points[1]);
+		var nextPos = new Vector2(points[2],points[3]);
+		var dir = nextPos.sub(startPos);
+		dir.normalize();
+		dir = dir.mul(100);
+
+		var pos = startPos.add(dir);
+		this.moveRope(pos);
+
+
 
 	}
 
@@ -2349,29 +2361,28 @@ class Level1 extends LevelScene
 	{
 
 		this.show_tap_to_rescue();
-
+	
 		// Level Layout
 
-		this.add_checkpoints(285,405, 800,1527, 1);
+		this.add_checkpoints(285,300, 800,1527, 1);
 
-		this.add_rect(this.node_list.nodes.length,new Vector2(715,615),new Vector2(45,160));
-		this.add_circle(this.node_list.nodes.length,new Vector2(400,873),100);
-		this.add_circle(this.node_list.nodes.length,new Vector2(708,1167),135);
+		this.add_circle(this.node_list.nodes.length,new Vector2(453,618),78);
+		this.add_circle(this.node_list.nodes.length,new Vector2(639,1305),65);
 
+		this.add_rect(this.node_list.nodes.length,new Vector2(837,675),new Vector2(70,70));
+		this.add_rect(this.node_list.nodes.length,new Vector2(309,927),new Vector2(95,95));
 
-		this.add_coin(816,603);
-
-		this.add_key(222,882);
-		this.add_key(912,1203);
-
-
-		this.add_tutorial_arrow_horizontal(435,1500);
+		this.add_saw(300,618).setScale(0.5,0.5);
+		this.add_saw(300,1300).setScale(0.5,0.5);
+		this.add_saw(600,900).setScale(0.5,0.5);
+		this.add_periodic_spike(837,735).setScale(2,2);
 
 		/* POLYGONS AND NODES [polygon_points,points,normals] */
 
 		this.add_dudes2(13,2);
 
-		var tpath = [485,405,734.737860355746,455.37648435365156,739.3113972901613,456.48162205691256,743.6558886518739,458.28826652709296,747.6644668590338,460.7519771819207,751.238527259453,463.8121506553998,754.2901536483149,467.3935115442842,756.7442808670694,471.40796406334556,758.5405412870149,475.7567590616602,759.6347497570092,480.3329230947585,759.9999904879551,485.023889801322,759.6272791384276,749.7142688567463,758.5257838151941,754.2886843917107,756.722599552359,758.6346130551718,754.2620818165939,762.6451519099412,751.2047554331609,766.221648075016,747.6258257714168,769.276125429641,743.6133288122663,771.7334486860398,739.265965602968,773.5331715980649,734.6906743682574,774.6310238427728,730,775,695.2149656745611,774.6159323085459,400.1592652916487,773.000126827246,379.3750315375555,775.1500604194199,359.49129749260265,781.5721868293506,341.37620008299723,791.9861117876001,325.82065639441157,805.9371564706354,313.50383171103005,822.816209077769,304.9634867118624,841.8863190536118,300.5724984852645,862.3148728347638,300.5225804696395,883.2099463064524,304.8159121184314,903.6592467969099,313.26504374375264,922.7699443763689,325.50108069323335,939.7076533999201,340.9897895335424,953.732862334395,359.0549230339966,964.2332213190352,378.9077455661094,970.7502777637794,736.2643363145664,1034.9919423190497,763.0796249436421,1043.7472721759566,787.4901008656524,1057.8838973186432,808.4299866221844,1076.7846033813082,824.9850330075959,1099.6241730869913,836.4324357915668,1125.405415777471,842.2723938279212,1153.0027054142722,842.249930701897,1181.211126152978,798.1723237597912,1388.6161879895562];
+		var tpath = [485,300,778.4790874524715,1379.7718631178707];
+
 		for(var i = 0; i < tpath.length; i += 2)
 		{
 			this.dude_path.push(new Vector2(tpath[i], tpath[i + 1]));
@@ -2381,7 +2392,7 @@ class Level1 extends LevelScene
 
 		var scene = this;
 
-		this.show_tap_tutorial_hand(300,1300);
+		this.show_tap_tutorial_hand(800,400);
 
 
 		this.input.on('pointerdown', function(pointer)
@@ -2395,16 +2406,17 @@ class Level1 extends LevelScene
 
 		this.update_calls.push(function()
 		{
-			if(!scene.level_complete && scene.send_dudes_completed)
+			if(!scene.game_over && scene.killed_dudes.length == 13)
 			{
-				scene.level_complete = true;
-				scene.show_level_complete_no_continue();
-
-				setTimeout(function() 
+				scene.game_over = true;
+				setTimeout(function()
 				{
-            		scene.scene.start("Level2");
-				},1000)
+					scene.show_game_over(function()
+					{
+            			scene.scene.start("Level2");
+					});
 
+				},2000);
 			}
 				
 		});
@@ -2422,54 +2434,63 @@ class Level2 extends LevelScene
 
     setup_level()
 	{
-		
-		this.show_play_button();
 
+		this.show_drag_the_rope();
+	
+		// Level Layout
 
 		this.add_checkpoints(285,300, 800,1527, 1);
 
-		this.add_circle(this.node_list.nodes.length,new Vector2(716,692),138);
-		this.add_circle(this.node_list.nodes.length,new Vector2(150,972),78);
-		this.add_circle(this.node_list.nodes.length,new Vector2(500,1136),94);
+		this.add_circle(this.node_list.nodes.length,new Vector2(453,618),78);
+		this.add_circle(this.node_list.nodes.length,new Vector2(639,1305),65);
 
+		this.add_rect(this.node_list.nodes.length,new Vector2(837,675),new Vector2(70,70));
+		this.add_rect(this.node_list.nodes.length,new Vector2(309,927),new Vector2(95,95));
 
-		this.add_rect(this.node_list.nodes.length,new Vector2(388,612),new Vector2(46,140));
-
-		this.add_saw(864,1152).setScale(0.5,0.5);
-		this.add_axe_blade(150,972).setScale(1.5,1.5);
-
-		var spike = this.add_spike(453,620);
-		spike.rotation = 1.57;
-		spike.setScale(0.5);
-
-
-
-
-		this.add_tutorial_arrow(800,1374);
+		this.add_saw(300,618).setScale(0.5,0.5);
+		this.add_saw(300,1300).setScale(0.5,0.5);
+		this.add_saw(600,900).setScale(0.5,0.5);
+		this.add_periodic_spike(837,735).setScale(2,2);
 
 		/* POLYGONS AND NODES [polygon_points,points,normals] */
 
 		this.add_dudes2(13,2);
 
-		var tpath = [485,300,797.2565475515557,580.4590950368353,818.6617641026774,599.7798167897818,835.5847004077647,623.1269324889245,847.2864899202683,649.481091683637,853.256224801875,677.6916544234783,853.2332624952725,706.5269289563777,847.2186055498928,734.7279482018694,835.4748578499435,761.0634370831324,818.5147591558406,784.3835708079093,797.078798548517,803.6701769763484,444.8936280780174,1059.846945080344,430.27141701074686,1072.9609270823971,418.69360180836827,1088.827236533103,410.6656775091506,1106.753139910395,406.5381485761486,1125.955980464678,406.4912256414611,1145.5973495280653,410.52695739132554,1164.8196919890952,418.46914111912747,1182.7837477137869,429.9710158516393,1198.7051941959248,444.5304021615299,1211.8888905943313,700.6083650190113,1430.8745247148288];
-		for(var i = 0; i < tpath.length; i += 2)
-		{
-			this.dude_path.push(new Vector2(tpath[i], tpath[i + 1]));
-		}
-		this.draw_dude_path = true;
-		this.rope_active = false;
+		this.add_rope();
+
+		var tpath = [485,300,530.5796053227989,609.9126742393573,530.5666266277627,626.2108728883874,527.1670379195047,642.1505794184479,520.5292674804028,657.03585574264,510.9431247402577,670.216800891427,498.82714700568357,681.1179261170665,484.71032584560345,689.2632811114227,230.42926555816123,835.244903911421,226.4128600248992,837.69583353628,222.82907017994572,840.7446070242318,219.76605155698752,844.3162293935537,217.2991495454256,848.3228444111191,215.48904601355872,852.6658957160836,214.38026663107834,857.2385511497037,214.00008560836847,991.9283306566316,214.35785479428313,996.6198731154866,215.44477363552943,1001.197774039073,217.23410565629,1005.5494243413273,219.68183613302992,1009.5677803418414,222.7277547867335,1013.1539968702527,226.29693686006274,1016.2198587003185,230.30158614729356,1018.6899505042625,665.5198194173091,1245.6560940106458,677.2730115279066,1252.4626172274948,687.3551787440147,1261.562957183593,695.3261270036572,1272.5597870418846,766.3117870722433,1387.0722433460076];
+
+		this.add_path_tutorial_hand(tpath);
+		// CONDITIONS
 
 		var scene = this;
 
 		this.update_calls.push(function()
 		{
-			var pointer = scene.input.activePointer;
-			if (pointer.isDown) 
+			if(scene.send_dudes)
 			{
-				goToStore();
+				scene.path_tutorial_hand.setVisible(false);
+				scene.path_tutorial_path = null;
 			}
-		});
 
+			if(!scene.level_complete && scene.send_dudes_completed)
+			{
+				scene.level_complete = true;
+				scene.show_play_now();
+			}
+
+			if(scene.killed_dudes.length == 13)
+			{
+				setTimeout(function()
+				{
+					scene.show_game_over(function()
+					{
+            			scene.scene.start("Level2");
+					});
+				},1000);
+			}
+				
+		});
 	}
 }
 
