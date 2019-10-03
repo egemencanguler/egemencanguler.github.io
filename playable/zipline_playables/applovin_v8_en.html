@@ -1488,7 +1488,7 @@ class LevelScene extends Phaser.Scene
 				if(!this.move_rope)
 				{
 					var distance = pos.sub(this.rope_mover.ropeOldEnd).magnitude();
-					if(distance < 1000)
+					if(distance < 500)
 					{
 						this.move_rope = true;
 					}
