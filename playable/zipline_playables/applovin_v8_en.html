@@ -2479,8 +2479,10 @@ class Level2 extends LevelScene
 				scene.show_play_now();
 			}
 
-			if(scene.killed_dudes.length == 13)
+			if(!scene.game_over && scene.killed_dudes.length == 13)
 			{
+				scene.game_over = true;
+				
 				setTimeout(function()
 				{
 					scene.show_game_over(function()
