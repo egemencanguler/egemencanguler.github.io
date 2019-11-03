@@ -2032,6 +2032,7 @@ if(tapjoyMode)
     {
         window.TJ_API.setPlayableAPI({skipAd: function() 
         {
+            window.TJ_API && window.TJ_API.gameplayFinished();
         } });
     }else
     {
@@ -2039,6 +2040,7 @@ if(tapjoyMode)
         {
             if("Escape" === keyEvent.code)
             {
+                window.TJ_API && window.TJ_API.gameplayFinished();
             }
         };
 
@@ -2227,6 +2229,8 @@ function resizeUpdate()
 
 function goToStore()
 {
+    playableCompleted();
+
     if(mRaidMode)
     {
         /* APPLOVIN */
